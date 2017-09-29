@@ -1,0 +1,896 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NuGet.VisualStudio</name>
+    </assembly>
+    <members>
+        <member name="T:NuGet.VisualStudio.IVsCredentialProvider">
+            <summary>
+            Contains methods to get credentials for NuGet operations.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsCredentialProvider.GetCredentialsAsync(System.Uri,System.Net.IWebProxy,System.Boolean,System.Boolean,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Get credentials for the supplied package source Uri.
+            </summary>
+            <param name="uri">The NuGet package source Uri for which credentials are being requested. Implementors are
+            expected to first determine if this is a package source for which they can supply credentials.
+            If not, then Null should be returned.</param>
+            <param name="proxy">Web proxy to use when comunicating on the network.  Null if there is no proxy
+            authentication configured.</param>
+            <param name="isProxyRequest">True if if this request is to get proxy authentication
+            credentials. If the implementation is not valid for acquiring proxy credentials, then
+            null should be returned.</param>
+            <param name="isRetry">True if credentials were previously acquired for this uri, but
+            the supplied credentials did not allow authorized access.</param>
+            <param name="nonInteractive">If true, then interactive prompts must not be allowed.</param>
+            <param name="cancellationToken">This cancellation token should be checked to determine if the
+            operation requesting credentials has been cancelled.</param>
+            <returns>Credentials acquired by this provider for the given package source uri.
+            If the provider does not handle requests for the input parameter set, then null should be returned.
+            If the provider does handle the request, but cannot supply credentials, an exception should be thrown.</returns>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsFrameworkCompatibility2">
+            <summary>
+            Contains methods to discover frameworks and compatibility between frameworks.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsFrameworkCompatibility2.GetNearest(System.Runtime.Versioning.FrameworkName,System.Collections.Generic.IEnumerable{System.Runtime.Versioning.FrameworkName},System.Collections.Generic.IEnumerable{System.Runtime.Versioning.FrameworkName})">
+            <summary>
+            Selects the framework from <paramref name="frameworks"/> that is nearest
+            to the <paramref name="targetFramework"/>, according to NuGet's framework
+            compatibility rules. <c>null</c> is returned of none of the frameworks
+            are compatible.
+            </summary>
+            <param name="targetFramework">The target framework.</param>
+            <param name="fallbackTargetFrameworks">
+            Target frameworks to use if the provided <paramref name="targetFramework"/> is not compatible.
+            These fallback frameworks are attempted in sequence after <paramref name="targetFramework"/>.
+            </param>
+            <param name="frameworks">The list of frameworks to choose from.</param>
+            <exception cref="T:System.ArgumentException">If any of the arguments are <c>null</c>.</exception>
+            <returns>The nearest framework.</returns>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsFrameworkParser">
+            <summary>
+            An interface for dealing with the conversion between strings and <see cref="T:System.Runtime.Versioning.FrameworkName"/>
+            instances.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsFrameworkParser.ParseFrameworkName(System.String)">
+            <summary>
+            Parses a short framework name (e.g. "net45") or a full framework name
+            (e.g. ".NETFramework,Version=v4.5") into a <see cref="T:System.Runtime.Versioning.FrameworkName"/>
+            instance.
+            </summary>
+            <param name="shortOrFullName">The framework string.</param>
+            <exception cref="T:System.ArgumentNullException">If the provided string is null.</exception>
+            <exception cref="T:System.ArgumentException">If the provided string cannot be parsed.</exception>
+            <returns>The parsed framework.</returns>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsFrameworkParser.GetShortFrameworkName(System.Runtime.Versioning.FrameworkName)">
+            <summary>
+            Gets the shortened version of the framework name from a <see cref="T:System.Runtime.Versioning.FrameworkName"/>
+            instance.
+            </summary>
+            <remarks>
+            For example, ".NETFramework,Version=v4.5" is converted to "net45". This is the value
+            used inside of .nupkg folder structures as well as in project.json files.
+            </remarks>
+            <param name="frameworkName">The framework name.</param>
+            <exception cref="T:System.ArgumentNullException">If the input is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            If the provided framework name cannot be converted to a short name.
+            </exception>
+            <returns>The short framework name. </returns>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsGlobalPackagesInitScriptExecutor">
+            <summary>
+            Execute powershell scripts from package(s) in a solution
+            </summary>
+            <remarks>Intended for internal use only.</remarks>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsGlobalPackagesInitScriptExecutor.ExecuteInitScriptAsync(System.String,System.String)">
+            <summary>
+            Executes the init script of the given package if available.
+            1) If the init.ps1 script has already been executed by the powershell host, it will not be executed again.
+            True is returned.
+            2) If the package is found in the global packages folder it will be used.
+            If not, it will return false and do nothing.
+            3) Also, note if other scripts are executing while this call was made, it will wait for them to complete.
+            </summary>
+            <param name="packageId">Id of the package whose init.ps1 will be executed.</param>
+            <param name="packageVersion">Version of the package whose init.ps1 will be executed.</param>
+            <returns>Returns true if the script was executed or has been executed already.</returns>
+            <remarks>This method throws if the init.ps1 being executed throws.</remarks>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsFrameworkCompatibility">
+            <summary>
+            Contains methods to discover frameworks and compatibility between frameworks.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsFrameworkCompatibility.GetNetStandardFrameworks">
+            <summary>
+            Gets all .NETStandard frameworks currently supported, in ascending order by version.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsFrameworkCompatibility.GetFrameworksSupportingNetStandard(System.Runtime.Versioning.FrameworkName)">
+            <summary>
+            Gets frameworks that support packages of the provided .NETStandard version.
+            </summary>
+            <remarks>
+            The result list is not exhaustive as it is meant to human-readable. For example,
+            equivalent frameworks are not returned. Additionally, a framework name with version X
+            in the result implies that framework names with versions greater than or equal to X
+            but having the same <see cref="P:System.Runtime.Versioning.FrameworkName.Identifier"/> are also supported.
+            </remarks>
+            <param name="frameworkName">The .NETStandard version to get supporting frameworks for.</param>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsFrameworkCompatibility.GetNearest(System.Runtime.Versioning.FrameworkName,System.Collections.Generic.IEnumerable{System.Runtime.Versioning.FrameworkName})">
+            <summary>
+            Selects the framework from <paramref name="frameworks"/> that is nearest
+            to the <paramref name="targetFramework"/>, according to NuGet's framework
+            compatibility rules. <c>null</c> is returned of none of the frameworks
+            are compatible.
+            </summary>
+            <param name="targetFramework">The target framework.</param>
+            <param name="frameworks">The list of frameworks to choose from.</param>
+            <exception cref="T:System.ArgumentException">If any of the arguments are <c>null</c>.</exception>
+            <returns>The nearest framework.</returns>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPathContext">
+            <summary>
+            NuGet path information specific to the current context (e.g. project context).
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPathContext.UserPackageFolder">
+            <summary>
+            User package folder directory. The path returned is an absolute path.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPathContext.FallbackPackageFolders">
+            <summary>
+            Fallback package folder locations. The paths (if any) in the returned list are absolute paths. If no
+            fallback package folders are configured, an empty list is returned. The item type of this sequence is
+            <see cref="T:System.String"/>.
+            </summary>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPathContextProvider">
+            <summary>
+            A factory to initialize <see cref="T:NuGet.VisualStudio.IVsPathContext"/> instances.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPathContextProvider.CreateAsync(EnvDTE.Project,System.Threading.CancellationToken)">
+            <summary>
+            Create an <see cref="T:NuGet.VisualStudio.IVsPathContext"/> based on the provided DTE project.
+            </summary>
+            <param name="project">The DTE project.</param>
+            <param name="token">The cancellation token.</param>
+            <returns>The path context.</returns>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageInstaller2">
+            <summary>
+            Contains method to install latest version of a single package into a project within the current solution.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstaller2.InstallLatestPackage(System.String,EnvDTE.Project,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Installs the latest version of a single package from the specified package source.
+            </summary>
+            <param name="source">
+            The package source to install the package from. This value can be <c>null</c>
+            to indicate that the user's configured sources should be used. Otherwise,
+            this should be the source path as a string. If the user has credentials
+            configured for a source, this value must exactly match the configured source
+            value.
+            </param>
+            <param name="project">The target project for package installation.</param>
+            <param name="packageId">The package ID of the package to install.</param>
+            <param name="includePrerelease">
+            Whether or not to consider prerelease versions when finding the latest version
+            to install.
+            </param>
+            <param name="ignoreDependencies">
+            A boolean indicating whether or not to ignore the package's dependencies
+            during installation.
+            </param>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when <see paramref="includePrerelease"/> is <c>false</c> and no stable version
+            of the package exists.
+            </exception>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageInstallerProjectEvents">
+            <summary>
+            Contains batch events which are raised when packages are installed or uninstalled from projects with packages.config
+            and the current solution.
+            </summary>
+        </member>
+        <member name="E:NuGet.VisualStudio.IVsPackageInstallerProjectEvents.BatchStart">
+            <summary>
+            Raised before any IVsPackageInstallerEvents events are raised for a project.
+            </summary>
+        </member>
+        <member name="E:NuGet.VisualStudio.IVsPackageInstallerProjectEvents.BatchEnd">
+            <summary>
+            Raised after all IVsPackageInstallerEvents events are raised for a project.
+            </summary>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageSourceProvider">
+            <summary>
+            A public API for retrieving the list of NuGet package sources.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageSourceProvider.GetSources(System.Boolean,System.Boolean)">
+            <summary>
+            Provides the list of package sources.
+            </summary>
+            <param name="includeUnOfficial">Unofficial sources will be included in the results</param>
+            <param name="includeDisabled">Disabled sources will be included in the results</param>
+            <returns>Key: source name Value: source URI</returns>
+        </member>
+        <member name="E:NuGet.VisualStudio.IVsPackageSourceProvider.SourcesChanged">
+            <summary>
+            Raised when sources are added, removed, disabled, or modified.
+            </summary>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageInstaller">
+            <summary>
+            Contains methods to install packages into a project within the current solution.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstaller.InstallPackage(System.String,EnvDTE.Project,System.String,System.Version,System.Boolean)">
+            <summary>
+            Installs a single package from the specified package source.
+            </summary>
+            <param name="source">
+            The package source to install the package from. This value can be <c>null</c>
+            to indicate that the user's configured sources should be used. Otherwise,
+            this should be the source path as a string. If the user has credentials
+            configured for a source, this value must exactly match the configured source
+            value.
+            </param>
+            <param name="project">The target project for package installation.</param>
+            <param name="packageId">The package ID of the package to install.</param>
+            <param name="version">
+            The version of the package to install. <c>null</c> can be provided to
+            install the latest version of the package.
+            </param>
+            <param name="ignoreDependencies">
+            A boolean indicating whether or not to ignore the package's dependencies
+            during installation.
+            </param>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstaller.InstallPackage(System.String,EnvDTE.Project,System.String,System.String,System.Boolean)">
+            <summary>
+            Installs a single package from the specified package source.
+            </summary>
+            <param name="source">
+            The package source to install the package from. This value can be <c>null</c>
+            to indicate that the user's configured sources should be used. Otherwise,
+            this should be the source path as a string. If the user has credentials
+            configured for a source, this value must exactly match the configured source
+            value.
+            </param>
+            <param name="project">The target project for package installation.</param>
+            <param name="packageId">The package ID of the package to install.</param>
+            <param name="version">
+            The version of the package to install. <c>null</c> can be provided to
+            install the latest version of the package.
+            </param>
+            <param name="ignoreDependencies">
+            A boolean indicating whether or not to ignore the package's dependencies
+            during installation.
+            </param>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstaller.InstallPackage(NuGet.IPackageRepository,EnvDTE.Project,System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Installs a single package from the specified package source.
+            </summary>
+            <param name="repository">The package repository to install the package from.</param>
+            <param name="project">The target project for package installation.</param>
+            <param name="packageId">The package id of the package to install.</param>
+            <param name="version">
+            The version of the package to install. <c>null</c> can be provided to
+            install the latest version of the package.
+            </param>
+            <param name="ignoreDependencies">
+            A boolean indicating whether or not to ignore the package's dependencies
+            during installation.
+            </param>
+            <param name="skipAssemblyReferences">
+            A boolean indicating if assembly references from the package should be
+            skipped.
+            </param>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstaller.InstallPackagesFromRegistryRepository(System.String,System.Boolean,System.Boolean,EnvDTE.Project,System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            Installs one or more packages that exist on disk in a folder defined in the registry.
+            </summary>
+            <param name="keyName">
+            The registry key name (under NuGet's repository key) that defines the folder on disk
+            containing the packages.
+            </param>
+            <param name="isPreUnzipped">
+            A boolean indicating whether the folder contains packages that are
+            pre-unzipped.
+            </param>
+            <param name="skipAssemblyReferences">
+            A boolean indicating whether the assembly references from the packages
+            should be skipped.
+            </param>
+            <param name="project">The target project for package installation.</param>
+            <param name="packageVersions">
+            A dictionary of packages/versions to install where the key is the package id
+            and the value is the version.
+            </param>
+            <remarks>
+            If any version of the package is already installed, no action will be taken.
+            <para>
+            Dependencies are always ignored.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstaller.InstallPackagesFromRegistryRepository(System.String,System.Boolean,System.Boolean,System.Boolean,EnvDTE.Project,System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            Installs one or more packages that exist on disk in a folder defined in the registry.
+            </summary>
+            <param name="keyName">
+            The registry key name (under NuGet's repository key) that defines the folder on disk
+            containing the packages.
+            </param>
+            <param name="isPreUnzipped">
+            A boolean indicating whether the folder contains packages that are
+            pre-unzipped.
+            </param>
+            <param name="skipAssemblyReferences">
+            A boolean indicating whether the assembly references from the packages
+            should be skipped.
+            </param>
+            <param name="ignoreDependencies">A boolean indicating whether the package's dependencies should be ignored</param>
+            <param name="project">The target project for package installation.</param>
+            <param name="packageVersions">
+            A dictionary of packages/versions to install where the key is the package id
+            and the value is the version.
+            </param>
+            <remarks>
+            If any version of the package is already installed, no action will be taken.
+            </remarks>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstaller.InstallPackagesFromVSExtensionRepository(System.String,System.Boolean,System.Boolean,EnvDTE.Project,System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            Installs one or more packages that are embedded in a Visual Studio Extension Package.
+            </summary>
+            <param name="extensionId">The Id of the Visual Studio Extension Package.</param>
+            <param name="isPreUnzipped">
+            A boolean indicating whether the folder contains packages that are
+            pre-unzipped.
+            </param>
+            <param name="skipAssemblyReferences">
+            A boolean indicating whether the assembly references from the packages
+            should be skipped.
+            </param>
+            <param name="project">The target project for package installation</param>
+            <param name="packageVersions">
+            A dictionary of packages/versions to install where the key is the package id
+            and the value is the version.
+            </param>
+            <remarks>
+            If any version of the package is already installed, no action will be taken.
+            <para>
+            Dependencies are always ignored.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstaller.InstallPackagesFromVSExtensionRepository(System.String,System.Boolean,System.Boolean,System.Boolean,EnvDTE.Project,System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            Installs one or more packages that are embedded in a Visual Studio Extension Package.
+            </summary>
+            <param name="extensionId">The Id of the Visual Studio Extension Package.</param>
+            <param name="isPreUnzipped">
+            A boolean indicating whether the folder contains packages that are
+            pre-unzipped.
+            </param>
+            <param name="skipAssemblyReferences">
+            A boolean indicating whether the assembly references from the packages
+            should be skipped.
+            </param>
+            <param name="ignoreDependencies">A boolean indicating whether the package's dependencies should be ignored</param>
+            <param name="project">The target project for package installation</param>
+            <param name="packageVersions">
+            A dictionary of packages/versions to install where the key is the package id
+            and the value is the version.
+            </param>
+            <remarks>
+            If any version of the package is already installed, no action will be taken.
+            </remarks>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageInstallerEvents">
+            <summary>
+            Contains events which are raised when packages are installed or uninstalled from projects and the current
+            solution.
+            </summary>
+        </member>
+        <member name="E:NuGet.VisualStudio.IVsPackageInstallerEvents.PackageInstalling">
+            <summary>
+            Raised when a package is about to be installed into the current solution.
+            </summary>
+        </member>
+        <member name="E:NuGet.VisualStudio.IVsPackageInstallerEvents.PackageInstalled">
+            <summary>
+            Raised after a package has been installed into the current solution.
+            </summary>
+        </member>
+        <member name="E:NuGet.VisualStudio.IVsPackageInstallerEvents.PackageUninstalling">
+            <summary>
+            Raised when a package is about to be uninstalled from the current solution.
+            </summary>
+        </member>
+        <member name="E:NuGet.VisualStudio.IVsPackageInstallerEvents.PackageUninstalled">
+            <summary>
+            Raised after a package has been uninstalled from the current solution.
+            </summary>
+        </member>
+        <member name="E:NuGet.VisualStudio.IVsPackageInstallerEvents.PackageReferenceAdded">
+            <summary>
+            Raised after a package has been installed into a project within the current solution.
+            </summary>
+        </member>
+        <member name="E:NuGet.VisualStudio.IVsPackageInstallerEvents.PackageReferenceRemoved">
+            <summary>
+            Raised after a package has been uninstalled from a project within the current solution.
+            </summary>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageInstallerServices">
+            <summary>
+            Contains methods to query for installed packages within the current solution.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstallerServices.GetInstalledPackages">
+            <summary>
+            Get the list of NuGet packages installed in the current solution.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstallerServices.IsPackageInstalled(EnvDTE.Project,System.String)">
+            <summary>
+            Checks if a NuGet package with the specified Id is installed in the specified project.
+            </summary>
+            <param name="project">The project to check for NuGet package.</param>
+            <param name="id">The id of the package to check.</param>
+            <returns><c>true</c> if the package is install. <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstallerServices.IsPackageInstalled(EnvDTE.Project,System.String,NuGet.SemanticVersion)">
+            <summary>
+            Checks if a NuGet package with the specified Id and version is installed in the specified project.
+            </summary>
+            <param name="project">The project to check for NuGet package.</param>
+            <param name="id">The id of the package to check.</param>
+            <param name="version">The version of the package to check.</param>
+            <returns><c>true</c> if the package is install. <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstallerServices.IsPackageInstalledEx(EnvDTE.Project,System.String,System.String)">
+            <summary>
+            Checks if a NuGet package with the specified Id and version is installed in the specified project.
+            </summary>
+            <param name="project">The project to check for NuGet package.</param>
+            <param name="id">The id of the package to check.</param>
+            <param name="versionString">The version of the package to check.</param>
+            <returns><c>true</c> if the package is install. <c>false</c> otherwise.</returns>
+            <remarks>
+            The reason this method is named IsPackageInstalledEx, instead of IsPackageInstalled, is that
+            when client project compiles against this assembly, the compiler would attempt to bind against
+            the other overload which accepts SemanticVersion and would require client project to reference NuGet.Core.
+            </remarks>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageInstallerServices.GetInstalledPackages(EnvDTE.Project)">
+            <summary>
+            Get the list of NuGet packages installed in the specified project.
+            </summary>
+            <param name="project">The project to get NuGet packages from.</param>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageMetadata">
+            <summary>
+            Contains information about an installed package.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageMetadata.Id">
+            <summary>
+            Id of the package.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageMetadata.Version">
+            <summary>
+            Version of the package.
+            </summary>
+            <remarks>
+            Do not use this property because it will require referencing NuGet.Core.dll assembly. Use the VersionString
+            property instead.
+            </remarks>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageMetadata.Title">
+            <summary>
+            Title of the package.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageMetadata.Description">
+            <summary>
+            Description of the package.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageMetadata.Authors">
+            <summary>
+            The authors of the package.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageMetadata.InstallPath">
+            <summary>
+            The location where the package is installed on disk.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageMetadata.VersionString">
+            <summary>
+            The version of the package.
+            </summary>
+            <remarks>
+            Use this property instead of the Version property becase with the type string,
+            it doesn't require referencing NuGet.Core.dll assembly.
+            </remarks>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageRestorer">
+            <summary>
+            Contains methods to restore packages installed in a project within the current solution.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageRestorer.IsUserConsentGranted">
+            <summary>
+            Returns a value indicating whether the user consent to download NuGet packages
+            has been granted.
+            </summary>
+            <returns>true if the user consent has been granted; otherwise, false.</returns>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageRestorer.RestorePackages(EnvDTE.Project)">
+            <summary>
+            Restores NuGet packages installed in the given project within the current solution.
+            </summary>
+            <param name="project">The project whose NuGet packages to restore.</param>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageUninstaller">
+            <summary>
+            Contains methods to uninstall packages from a project within the current solution.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageUninstaller.UninstallPackage(EnvDTE.Project,System.String,System.Boolean)">
+            <summary>
+            Uninstall the specified package from a project and specify whether to uninstall its dependency packages
+            too.
+            </summary>
+            <param name="project">The project from which the package is uninstalled.</param>
+            <param name="packageId">The package to be uninstalled</param>
+            <param name="removeDependencies">
+            A boolean to indicate whether the dependency packages should be
+            uninstalled too.
+            </param>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageProjectMetadata">
+            <summary>
+            Contains information about project with packages.config where we're executing nuget actions.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageProjectMetadata.BatchId">
+            <summary>
+            Unique batch id for batch start/end events of the project.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageProjectMetadata.ProjectName">
+            <summary>
+            Name of the project.
+            </summary>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsSemanticVersionComparer">
+            <summary>
+            An interface for comparing two opaque version strings by treating them as NuGet semantic
+            versions.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsSemanticVersionComparer.Compare(System.String,System.String)">
+            <summary>
+            Compares two version strings as if they were NuGet semantic version
+            strings. Returns a number less than zero if <paramref name="versionA"/>
+            is less than <paramref name="versionB"/>. Returns zero if the two versions 
+            are equivalent. Returns a number greater than zero if <paramref name="versionA"/>
+            is greater than <paramref name="versionB"/>.
+            </summary>
+            <param name="versionA">The first version string.</param>
+            <param name="versionB">The second version string.</param>
+            <exception cref="T:System.ArgumentNullException">If either version string is null.</exception>
+            <exception cref="T:System.ArgumentException">If either string cannot be parsed.</exception>
+            <returns>
+            A standard comparison integer based on the relationship between the
+            two provided versions.
+            </returns>
+        </member>
+        <member name="T:NuGet.VisualStudio.VsPackageEventHandler">
+            <summary>
+            Defines an event handler delegate for package related events.
+            </summary>
+            <param name="metadata">Description of the package.</param>
+        </member>
+        <member name="T:NuGet.VisualStudio.VsPackageProjectEventHandler">
+            <summary>
+            Defines an event handler delegate for nuget batch events with projects with packages.config file.
+            </summary>
+            <param name="metadata">Description of the package.</param>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsPackageManagerProvider">
+            <summary>
+            Interface allowing integration of alternate package manager suggestion for a NuGet package. 
+            For example jQuery may appear on Bower and npm,
+            it might be more appropriate to install a package from them for certain projects. 
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageManagerProvider.PackageManagerName">
+            <summary>
+            Localized display package manager name.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageManagerProvider.PackageManagerId">
+            <summary>
+            Package manager unique id.
+            </summary>
+        </member>
+        <member name="P:NuGet.VisualStudio.IVsPackageManagerProvider.Description">
+            <summary>
+            The tool tip description for the package
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageManagerProvider.CheckForPackageAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Check if a recommendation should be surfaced for an alternate package manager. 
+            This code should not rely on slow network calls, and should return rapidly.
+            </summary>
+            <param name="packageId">Current package id</param>
+            <param name="projectName">Unique project name for finding the project through VS dte</param>
+            <param name="token">Cancellation Token</param>
+            <returns>return true if need to direct to integrated package manager for this package</returns>
+        </member>
+        <member name="M:NuGet.VisualStudio.IVsPackageManagerProvider.GoToPackage(System.String,System.String)">
+            <summary>
+            This Action should take the user to the other package manager.
+            </summary>
+            <param name="packageId">Current package id</param>
+            <param name="projectName">Unique project name for finding the project through VS dte</param>
+        </member>
+        <member name="T:NuGet.VisualStudio.IRegistryKey">
+            <summary>
+            Specifies methods for manipulating a key in the Windows registry.
+            </summary>
+        </member>
+        <member name="M:NuGet.VisualStudio.IRegistryKey.OpenSubKey(System.String)">
+            <summary>
+            Retrieves the specified subkey for read or read/write access.
+            </summary>
+            <param name="name">The name or path of the subkey to create or open.</param>
+            <returns>The subkey requested, or null if the operation failed.</returns>
+        </member>
+        <member name="M:NuGet.VisualStudio.IRegistryKey.GetValue(System.String)">
+            <summary>
+            Retrieves the value associated with the specified name.
+            </summary>
+            <param name="name">The name of the value to retrieve. This string is not case-sensitive.</param>
+            <returns>The value associated with name, or null if name is not found.</returns>
+        </member>
+        <member name="M:NuGet.VisualStudio.IRegistryKey.Close">
+            <summary>
+            Closes the key and flushes it to disk if its contents have been modified.
+            </summary>
+        </member>
+        <member name="T:NuGet.VisualStudio.IVsTemplateWizard">
+            <summary>
+            Defines the logic for a template wizard extension.
+            </summary>
+        </member>
+        <member name="T:NuGet.IFileSystem">
+            <summary>
+            Legacy
+            </summary>
+            <remarks>Do not use!</remarks>
+        </member>
+        <member name="T:NuGet.IPackage">
+            <summary>
+            Legacy
+            </summary>
+            <remarks>Do not use!</remarks>
+        </member>
+        <member name="P:NuGet.IPackage.IsAbsoluteLatestVersion">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="P:NuGet.IPackage.IsLatestVersion">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="P:NuGet.IPackage.Listed">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="P:NuGet.IPackage.Published">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="P:NuGet.IPackage.AssemblyReferences">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="M:NuGet.IPackage.GetFiles">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="M:NuGet.IPackage.GetSupportedFrameworks">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="M:NuGet.IPackage.GetStream">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="M:NuGet.IPackage.ExtractContents(NuGet.IFileSystem,System.String)">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="T:NuGet.IPackageAssemblyReference">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="P:NuGet.IPackageAssemblyReference.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="T:NuGet.IPackageFile">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="P:NuGet.IPackageFile.Path">
+            <summary>
+            Gets the full path of the file inside the package.
+            </summary>
+        </member>
+        <member name="P:NuGet.IPackageFile.EffectivePath">
+            <summary>
+            Gets the path that excludes the root folder (content/lib/tools) and framework folder (if present).
+            </summary>
+            <example>
+            If a package has the Path as 'content\[net40]\scripts\jQuery.js', the EffectivePath 
+            will be 'scripts\jQuery.js'.
+            
+            If it is 'tools\init.ps1', the EffectivePath will be 'init.ps1'.
+            </example>
+        </member>
+        <member name="P:NuGet.IPackageFile.TargetFramework">
+            <summary>
+            Framework
+            </summary>
+        </member>
+        <member name="M:NuGet.IPackageFile.GetStream">
+            <summary>
+            Returns package file stream
+            </summary>
+            <returns>Package file stream</returns>
+        </member>
+        <member name="T:NuGet.IPackageRepository">
+            <summary>
+            Legacy IPackageRepository
+            </summary>
+            <remarks>Do not use!</remarks>
+        </member>
+        <member name="P:NuGet.IPackageRepository.Source">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="P:NuGet.IPackageRepository.PackageSaveMode">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="P:NuGet.IPackageRepository.SupportsPrereleasePackages">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="M:NuGet.IPackageRepository.GetPackages">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="M:NuGet.IPackageRepository.AddPackage(NuGet.IPackage)">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="M:NuGet.IPackageRepository.RemovePackage(NuGet.IPackage)">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="T:NuGet.PackageSaveModes">
+            <summary>
+            Legacy
+            </summary>
+        </member>
+        <member name="F:NuGet.PackageSaveModes.None">
+            <summary>
+            None
+            </summary>
+        </member>
+        <member name="F:NuGet.PackageSaveModes.Nuspec">
+            <summary>
+            Nuspec
+            </summary>
+        </member>
+        <member name="F:NuGet.PackageSaveModes.Nupkg">
+            <summary>
+            Nupkg
+            </summary>
+        </member>
+        <member name="T:NuGet.SemanticVersion">
+            <summary>
+            This is the legacy implementation of the semantic version class. NuGet 2.x implemented this
+            under the <code>NuGet</code> namespace. In NuGet 3.x, we moved <code>SemanticVersion</code>
+            to <code>NuGet.Versioning.SemanticVersion</code>. We exposed multiple public APIs that have
+            the type <code>NuGet.SemanticVersion</code>. Therefore, we still need to have a semantic
+            version class implemented at the old location.
+            </summary>
+        </member>
+        <member name="P:NuGet.SemanticVersion.Version">
+            <summary>
+            Gets the normalized version portion.
+            </summary>
+        </member>
+        <member name="P:NuGet.SemanticVersion.SpecialVersion">
+            <summary>
+            Gets the optional special version.
+            </summary>
+        </member>
+        <member name="M:NuGet.SemanticVersion.Parse(System.String)">
+            <summary>
+            Parses a version string using loose semantic versioning rules that allows 2-4 version components followed by an optional special version.
+            </summary>
+        </member>
+        <member name="M:NuGet.SemanticVersion.TryParse(System.String,NuGet.SemanticVersion@)">
+            <summary>
+            Parses a version string using loose semantic versioning rules that allows 2-4 version components followed by an optional special version.
+            </summary>
+        </member>
+        <member name="M:NuGet.SemanticVersion.TryParseStrict(System.String,NuGet.SemanticVersion@)">
+            <summary>
+            Parses a version string using strict semantic versioning rules that allows exactly 3 components and an optional special version.
+            </summary>
+        </member>
+        <member name="M:NuGet.SemanticVersion.ParseOptionalVersion(System.String)">
+            <summary>
+            Attempts to parse the version token as a SemanticVersion.
+            </summary>
+            <returns>An instance of SemanticVersion if it parses correctly, null otherwise.</returns>
+        </member>
+        <member name="M:NuGet.SemanticVersion.ToNormalizedString">
+            <summary>
+            Returns the normalized string representation of this instance of <see cref="T:NuGet.SemanticVersion"/>.
+            If the instance can be strictly parsed as a <see cref="T:NuGet.SemanticVersion"/>, the normalized version
+            string if of the format {major}.{minor}.{build}[-{special-version}]. If the instance has a non-zero
+            value for <see cref="P:System.Version.Revision"/>, the format is {major}.{minor}.{build}.{revision}[-{special-version}].
+            </summary>
+            <returns>The normalized string representation.</returns>
+        </member>
+    </members>
+</doc>

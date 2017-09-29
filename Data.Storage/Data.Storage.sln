@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Storage", "Data.Storage\Data.Storage.csproj", "{09DA8D8A-4006-42A8-82E1-C6359C73D3FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Comman", "Comman", "{EEFBD4B6-B5CB-444A-9AC4-17233221FAD1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugin", "Plugin", "{E43EF34B-0E92-4F74-8E91-C724615ECB85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Nlog", "Data.Nlog\Data.Nlog.csproj", "{23741577-7AC2-448D-884C-296B5A73ABAB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5430EB56-C265-49C2-8D88-53C0B580AC38}"
+	ProjectSection(SolutionItems) = preProject
+		Data.Storage\packages.config = Data.Storage\packages.config
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{09DA8D8A-4006-42A8-82E1-C6359C73D3FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09DA8D8A-4006-42A8-82E1-C6359C73D3FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09DA8D8A-4006-42A8-82E1-C6359C73D3FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09DA8D8A-4006-42A8-82E1-C6359C73D3FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23741577-7AC2-448D-884C-296B5A73ABAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23741577-7AC2-448D-884C-296B5A73ABAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23741577-7AC2-448D-884C-296B5A73ABAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23741577-7AC2-448D-884C-296B5A73ABAB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{09DA8D8A-4006-42A8-82E1-C6359C73D3FF} = {E43EF34B-0E92-4F74-8E91-C724615ECB85}
+		{23741577-7AC2-448D-884C-296B5A73ABAB} = {EEFBD4B6-B5CB-444A-9AC4-17233221FAD1}
+	EndGlobalSection
+EndGlobal
